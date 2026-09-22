@@ -3,14 +3,14 @@ import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonFooter,
   IonList, IonItem, IonLabel, IonButton, IonInput,
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText,
   ToastController
 } from '@ionic/angular/standalone';
 // TODO TA05 – Formularios reactivos
 // FormGroup agrupa los FormControl del formulario.
 // FormControl representa cada campo individual.
 // ReactiveFormsModule habilita las directivas [formGroup] y formControlName en el HTML.
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Elemento } from '../models/elemento.model';
 
 @Component({
@@ -21,7 +21,7 @@ import { Elemento } from '../models/elemento.model';
     IonHeader, IonToolbar, IonTitle, IonContent, IonFooter,
     IonList, IonItem, IonLabel, IonButton, IonInput,
     // TODO TA05 - Añadimos los componentes Ionic necesarios para el formulario.
-    IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+    IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText,
     // TODO TA05 – Añadimos ReactiveFormsModule para habilitar [formGroup] y formControlName
     ReactiveFormsModule
   ],
@@ -54,11 +54,28 @@ export class HomePage {
 
   private router = inject(Router);
   private toastController = inject(ToastController);
+  private fb = inject(FormBuilder);
 
   // TODO TA05 – FormGroup: agrupa los campos del formulario.
   // Validators.required marca el campo como obligatorio.
   // Validators.minLength(3) exige un mínimo de caracteres.
-  
+  formulario = this.fb.nonNullable.group({
+    nombre: ['', [Validators.required, Validators.minLength(3)]],
+    descripcion: ['', [Validators.required, Validators.minLength(5)]],
+    categoria: ['']
+  });
+
+  get nombre() {
+  return this.formulario.get('nombre')!;
+}
+
+get descripcion() {
+  return this.formulario.get('descripcion')!;
+}
+
+get categoria() {
+  return this.formulario.get('categoria')!;
+}
 
   constructor() {};
 
@@ -68,20 +85,35 @@ export class HomePage {
   agregarElemento(): void {
     // TODO: Si el formulario no es válido, marcamos todos los campos como tocados
     // para que Angular muestre los errores en el HTML y salimos.
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+      return;
+    }
 
     //TODO: Recogemos como {nombre, descripcion, categoria} los valores que vienen desde el formulario formGroup
+    const { nombre, descripcion, categoria } = this.formulario.value;
 
     // TODO: Guardamos sin espacios en blanco innecesarios (quitamos con trim los espacios anteriores y posteriores)
     // Si algún valor es null o undefined, lo manejamos con ?? para ponerlo a ''
-    
+    const nombreLimpio = (nombre ?? '').trim();
+    const descripcionLimpia = (descripcion ?? '').trim();
+    const categoriaLimpia = (categoria ?? '').trim();
+
     // TODO: Creamos un nuevo elemento con los valores recogidos desde el formulario.
     //Para la id: haremos uso de Date.now() para generar un id único basado en el timestamp actual
+    const nuevoElemento: Elemento = {
+      id: Date.now(),
+      nombre: nombreLimpio,
+      descripcion: descripcionLimpia,
+      categoria: categoriaLimpia
+    };
 
     // TODO: signal.update() permite modificar el array sin perder la reactividad.
     // Devolvemos un nuevo array con spread (...) para no mutar el original.
+    this.elementos.update(lista => [...lista, nuevoElemento]);
 
     // Limpiamos el formulario tras añadir el elemento
-
+    this.formulario.reset();
   }
 
 

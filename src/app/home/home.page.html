@@ -25,17 +25,54 @@
 
     <ion-card-content>
       <!-- TODO Añadimos [formGroup] al formulario y le asignamos nuestro FormGroup -->
-      <form>
+      <form [formGroup]="formulario" (ngSubmit)="agregarElemento()">
 
         <!-- TODO TA05: formControlName="nombre" enlaza este input con
              el FormControl "nombre" del FormGroup.
              Al escribir, el FormControl se actualiza automáticamente. -->
+        <ion-item>
+          <ion-label position="stacked">Nombre*</ion-label>
+          <ion-input formControlName="nombre" placeholder="Ej: C#"></ion-input>
+        </ion-item>
+        @if (nombre?.invalid && nombre?.touched) {
+          <ion-text color="danger">
+            <p class="mensaje-error">
+              @if (nombre?.errors?.['required']) {
+                El nombre es obligatorio
+              } @else if (nombre?.errors?.['minlength']) {
+                El nombre debe tener al menos 3 caracteres
+              }
+            </p>
+          </ion-text>
+        }
 
         <!-- TODO TA05: Al igual que con el nombre lo hacemos para "descripcion" -->
-        
+        <ion-item>
+          <ion-label position="stacked">Descripción*</ion-label>
+          <ion-input formControlName="descripcion" placeholder="Breve descripción"></ion-input>
+        </ion-item>
+        @if (descripcion?.invalid && descripcion?.touched) {
+          <ion-text color="danger">
+            <p class="mensaje-error">
+              @if (descripcion?.errors?.['required']) {
+                La descripción es obligatoria
+              } @else if (descripcion?.errors?.['minlength']) {
+                La descripción debe tener al menos 5 caracteres
+              }
+            </p>
+          </ion-text>
+        }
+
         <!-- TODO TA05: "categoria" es opcional en el modelo -->
+        <ion-item>
+          <ion-label position="stacked">Categoría</ion-label>
+          <ion-input formControlName="categoria" placeholder="Ej: Frontend (opcional)"></ion-input>
+        </ion-item>
 
         <!-- TODO TA05: type="submit" lanza (ngSubmit) del <form> -->
+        <ion-button expand="block" type="submit">
+          Añadir elemento
+        </ion-button>
 
       </form>
     </ion-card-content>
